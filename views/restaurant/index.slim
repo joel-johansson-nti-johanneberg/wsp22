@@ -1,0 +1,5 @@
+h1 Olika typer mat på #{}
+ul
+  - type_of_food.each do |name|
+    li 
+      a href="type_of_food/#{name['name']}" #{name["name"]} 

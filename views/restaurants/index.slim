@@ -1,0 +1,7 @@
+h1 All restaurants
+
+ol
+  - restaurants.each do |name|
+    li 
+      a href="restaurant/#{name['id']}" #{name["name"]} ----
+      a href="#{name['link']}" Gå till hemsida
