@@ -2,4 +2,4 @@ h1 Olika typer mat på #{restaurant["name"]}
 ul
   - type_of_food.each do |name|
     li 
-      a href="type_of_food/#{name['name']}" #{name["name"]} 
+      a href="#{restaurant_id}/type_of_food/#{name['id']}" #{name["name"]} 

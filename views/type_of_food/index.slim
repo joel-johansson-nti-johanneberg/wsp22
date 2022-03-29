@@ -2,4 +2,5 @@ h1 Olika maträtter inom #{type_of_food_name["name"]}
 ul
   - dishes.each do |name|
     li 
-      a href="dishes/#{name['name']}" #{name["name"]} 
+      p #{name["name"]} 
+      a href="/dishes/#{name['id']}/edit"
