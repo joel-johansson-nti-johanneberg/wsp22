@@ -6,7 +6,13 @@ html lang="en"
         meta name="viewport" content="width=device-width, initial-scale=1.0"/
         title Document
     body 
-        nav
-            a href="/restaurants" Lista på restauranger
-            a href="/dishes/new" Lägg till maträtt
+            nav
+                - if session[:auth]
+                    a href="/logout" Logga ut
+                    a href="/restaurants" _Lista på restauranger_  
+                    a href="/dishes/new" _Lägg till maträtt_    
+                - else 
+                    a href="/showlogin" _Logga in_
+                    a href="/register" _Skapa konto_
+                    
     == yield 
