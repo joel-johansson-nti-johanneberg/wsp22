@@ -5,5 +5,6 @@ ul
       p #{name["name"]} 
       / -if session[:id] == 1 
       a href="/dishes/#{name['id']}/edit" Uppdatera
-      form method="POST" action="/dishes/#{name['id']}/delete"
-      input type="submit" value="Delete"
+      -if session[:id] == 1
+        form method="POST" action="/dishes/#{name['id']}/delete"
+          input type="submit" value="Delete"
