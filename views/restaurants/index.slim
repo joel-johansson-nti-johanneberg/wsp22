@@ -5,3 +5,7 @@ ol
     li 
       a href="restaurant/#{name['id']}" #{name["name"]} ----
       a href="#{name['link']}" Gå till hemsida
+      -if session[:id] == 1
+        form method="POST" action="/restaurant/#{name['id']}/delete"
+          input type="submit" value="Delete"
+        a href="/restaurant/#{name['id']}/edit" Uppdatera

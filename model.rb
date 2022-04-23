@@ -57,7 +57,12 @@ def dish_edit_post(id,name, where_id)
     db.execute("UPDATE dishes SET type_of_food_id=? WHERE id = ?",type_of_food_id,id)
     redirect('/')
 end
-
+def restaurant_edit_post(id,name,where_id,link) 
+    db = connect_to_db()
+    db.execute("UPDATE restaurant SET name=? WHERE id = ?",name,id)
+    db.execute("UPDATE restaurant SET link=? WHERE id = ?",link,id)
+    redirect('/restaurants')
+end
 def restaurants_get()
     db = connect_to_db()
     restaurants = db.execute("SELECT * FROM restaurant")
@@ -70,6 +75,17 @@ def dish_edit_get(id)
     slim(:"/dishes/edit",locals:{result:result})
 end
 
+def restaurant_edit_get(id)
+    db = connect_to_db()
+    result = db.execute("SELECT * FROM restaurant WHERE id = ?",id).first
+    slim(:"/restaurants/edit",locals:{result:result})
+end
+
+def restaurant_delete_post(id)
+    db = connect_to_db()
+    db.execute("DELETE FROM restaurant WHERE id = ?",id)
+    redirect('/restaurants')
+end 
 def resturant_id_get(restaurant_data) 
     session[:resturant_id]=params[:id]
     db = connect_to_db()

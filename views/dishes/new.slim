@@ -3,3 +3,12 @@ form action="/dishes/new" method="post"
     input type="text" name="where_id" placeholder="id för resturang"
     input type="text" name="type_of_food_id" placeholder="id för sorts mat"
     input type="submit" value="Skriv in maträtt"
+    /-loop.times do |index|
+        label Position #{index +1}:
+
+    /    select name="#{index + 1 }.to_s"
+            -@dish.each do |restaurants|
+                optgroup label = "#{restaurnats['name']}"
+            option value="#{restaurnats['id']}" "#{restaurnats['name']}"
+    
+    
