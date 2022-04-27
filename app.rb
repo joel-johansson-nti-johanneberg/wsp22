@@ -4,7 +4,7 @@ require 'sqlite3'
 require 'bcrypt'
 enable :sessions
 require_relative './model.rb'
-
+include Model
 before do
   if session[:auth] == nil && (request.path_info != '/login' &&request.path_info != '/error' && request.path_info != '/' && request.path_info != '/showlogin' && request.path_info != '/register' )
     redirect('/error')
