@@ -1,14 +1,34 @@
-form action="/dishes/new" method="post"
-    input type="text" name="name" placeholder="Namn på maträtt"
-    input type="text" name="where_id" placeholder="id för resturang"
-    input type="text" name="type_of_food_id" placeholder="id för sorts mat"
+form action="/dishes/" method="post"
+    input type="text" name="name" placeholder="Namn på maträtt" minlength="1"
+        select id="where_id" name="where_id"
+            option value="1" OGBG Bar & Restaurang
+            option value="2" Natur
+            option value="3" Magazzino
+            option value="4" Snipen Pizzeria
+            option value="5" Bov
+            option value="6" Tavolo
+            option value="7" Made in China
+        select id="type_of_food_id" name="type_of_food_id"
+            option value="1" Asiatiskt
+            option value="2" Svensk husmanskost
+            option value="3" Amerikanskt
+            option value="4" Indiskt
+            option value="5" Italenskt
+            option value="6" Sushi
+            option value="7" Vegetariskt
+            option value="7" Dansk
     input type="submit" value="Skriv in maträtt"
-    /-loop.times do |index|
+    /select "Resturang"
+        -@restaurants.each do |restaurants|
+            option value="#{restaurants[('id').to_i]}" "#{restaurnats['name']}"
+    /br
+     /-loop.times do |index|
         label Position #{index +1}:
 
     /    select name="#{index + 1 }.to_s"
             -@dish.each do |restaurants|
                 optgroup label = "#{restaurnats['name']}"
             option value="#{restaurnats['id']}" "#{restaurnats['name']}"
+    
     
     

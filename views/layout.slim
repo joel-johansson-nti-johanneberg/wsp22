@@ -10,7 +10,8 @@ html lang="en"
                 - if session[:auth]
                     a href="/logout" Logga ut
                     a href="/restaurants" _Lista på restauranger_  
-                    a href="/dishes/new" _Lägg till maträtt_    
+                    a href="/dishes/new" _Lägg till maträtt_
+                    a href="/eaten_dishes/show" _Lista_på_dina_ätna_maträtter_
                 - else 
                     a href="/showlogin" _Logga in_
                     a href="/register" _Skapa konto_

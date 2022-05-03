@@ -1,0 +1,11 @@
+h1 Dessa rätter har du ätit!
+-if result != [] 
+  ul
+    - result.each do |name|
+      li 
+          p #{name['name']}  
+          a href="/dishes/#{name['id']}/edit" Uppdatera
+          form method="POST" action="/dishes/#{name['id']}/delete"
+            input type="submit" value="Delete"
+-else 
+  p Du har inte lagt in några rätter

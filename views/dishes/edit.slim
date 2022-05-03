@@ -1,5 +1,20 @@
 form action="/dishes/#{result['id']}/update" method="post"
     input type="text" name="name" placeholder="#{result['name']}" 
-    input type="text" name="type_of_food_id" placeholder="type_of_food_id"
-    input type="text" name="where_id" placeholder="where_id"
+        select id="where_id" name="where_id"
+            option value="1" OGBG Bar & Restaurang
+            option value="2" Natur
+            option value="3" Magazzino
+            option value="4" Snipen Pizzeria
+            option value="5" Bov
+            option value="6" Tavolo
+            option value="7" Made in China
+        select id="type_of_food_id" name="type_of_food_id"
+            option value="1" Asiatiskt
+            option value="2" Svensk husmanskost
+            option value="3" Amerikanskt
+            option value="4" Indiskt
+            option value="5" Italenskt
+            option value="6" Sushi
+            option value="7" Vegetariskt
+            option value="7" Dansk
     input type="submit" value="Edit it!"

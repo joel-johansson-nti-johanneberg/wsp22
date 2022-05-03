@@ -5,8 +5,9 @@ require 'bcrypt'
 enable :sessions
 require_relative './model.rb'
 include Model
+
 before do
-  if session[:auth] == nil && (request.path_info != '/login' &&request.path_info != '/error' && request.path_info != '/' && request.path_info != '/showlogin' && request.path_info != '/register' )
+  if session[:auth] == nil && (request.path_info != '/login' && request.path_info != '/users/new' && request.path_info != '/error' && request.path_info != '/' && request.path_info != '/showlogin' && request.path_info != '/register' )
     redirect('/error')
   end
 end
@@ -17,14 +18,27 @@ before('/restaurant/:id/edit') do
   end
 end
 
+=begin
+before('/restaurant/:id') do
+  id = params[:id]
+  if not dish_exist(id)
+    redirect('/error_authorization')
+  end
+end
+=end 
+
 get('/error') do
   slim(:error)
 end
-
+get('/error_empty') do
+  slim(:error_empty)
+end
 get('/error_authorization') do
   slim(:error_authorization)
 end
-
+get('/error_restaurang_relation') do
+  slim(:error_restaurang_relation)
+end 
 get('/')  do
   slim(:start)
 end 
@@ -43,16 +57,34 @@ get('/showlogin') do
 end
 
 post('/login') do
-  username = params[:username]
-  password = params[:password]
-  login_post(username,password)
+  if session[:timeLogged] == nil
+    session[:timeLogged] = 0
+  end
+  logTime =  timeChecker(session[:timeLogged])
+  session[:timeLogged] = Time.now.to_i
+  if logTime
+    username = params[:username]
+    password = params[:password]
+    login_post(username,password)
+  else
+    redirect('/showlogin')
+  end
 end
 
 post('/users/new') do
-  username = params[:username]
-  password = params[:password]
-  password_confirm = params[:password_confirm]
-  user_new_post( username,password,password_confirm) 
+  if session[:timeLogged] == nil
+    session[:timeLogged] = 0
+  end
+  logTime =  timeChecker(session[:timeLogged])
+  session[:timeLogged] = Time.now.to_i
+  if logTime
+    username = params[:username]
+    password = params[:password]
+    password_confirm = params[:password_confirm]
+    user_new_post( username,password,password_confirm) 
+  else
+    redirect('/showlogin')
+  end
 end
 
 
@@ -60,8 +92,15 @@ get('/restaurants') do
   restaurants_get()
 end 
 
+get('/eaten_dishes/show') do 
+  person = session[:id]
+  result = eaten_dishes_show_get(person) 
+  slim(:"person_dishes", locals:{result:result})
+end
+
 get('/dishes/new')do 
-  slim(:"dishes/new")
+  restaurants = restaurants_data()
+  slim(:"dishes/new",locals:{restaurants:restaurants})
 end
 
 post('/dishes/:id/delete') do
@@ -69,7 +108,7 @@ post('/dishes/:id/delete') do
   dish_delete_post(id)
 end
 
-post('/dishes/new') do
+post('/dishes/') do
   name = params[:name]
   type_of_food_id = params[:type_of_food_id].to_i
   where_id = params[:where_id].to_i

@@ -3,8 +3,7 @@ ul
   - dishes.each do |name|
     li 
       p #{name["name"]} 
-      / -if session[:id] == 1 
-      a href="/dishes/#{name['id']}/edit" Uppdatera
-      -if session[:id] == 1
+      -if session[:id] == 1 || session[:id] == name['eaten_by']
+        a href="/dishes/#{name['id']}/edit" Uppdatera
         form method="POST" action="/dishes/#{name['id']}/delete"
           input type="submit" value="Delete"
