@@ -27,12 +27,9 @@ module Model
         auth = result["authorization"]
         
         if BCrypt::Password.new(pwdigest) == password
-        session[:id] = id
-        session[:auth] = true
-        redirect('/')
+            return {id:id, auth:true, status:true}
         else
-        session[:auth] = false
-        redirect("https://www.youtube.com/watch?v=D-NJOoLlNC4")
+            return {status:false}
         end
     end
     # Attempts to check if restaurant exist
@@ -66,30 +63,27 @@ module Model
         authorization = 1
         db = connect_to_db()
         db.execute("INSERT INTO user (username,pwdigest,authorization) VALUES (?,?,?)",username,password_digest,authorization)
-        session[:auth] = true
         result = db.execute("SELECT * FROM user WHERE username = ?",username).first
         id = result["id"]
-        session[:id] = id
-        redirect('/')
+        return {id:id, auth:true, status:true}
         else 
-        session[:auth] = false
-        "Användarnamnet är för långt/Lösenorden matchade inte/tomma fält"
+        return {status:false}
         end
     end
     # Attempts to delete a dish
     # @param [Integer] id, the dish ID
     # @see Model#connect_to_db
-    def dish_delete_post(id)
+    def dish_delete_post(id,sessionid)
         db = connect_to_db()
         result = db.execute("SELECT * FROM dishes WHERE id = ?",id).first
-        if session[:id] == result['eaten_by']
+        if sessionid == result['eaten_by']
             db.execute("DELETE FROM dishes WHERE id = ?",id)
-            redirect('/restaurants')
-        elsif session[:id] == 1
+            return {status:true}
+        elsif sessionid == 1
             db.execute("DELETE FROM dishes WHERE id = ?",id)
-            redirect('/restaurants')
+            return {status:true}
         else 
-            redirect('/error_authorization')  
+            return {status:false} 
         end 
     end
     # Attempts to se if text is empty
@@ -105,128 +99,126 @@ module Model
     # Attempts to creat new dish
     # @param [Integer] eaten by, the users ID
     # @see Model#connect_to_db
-    def dish_new_post(name,type_of_food_id,where_id)
+    def dish_new_post(name,type_of_food_id,where_id,sessionid)
         db = connect_to_db()
         if not isEmpty(name)
-            eaten_by = session[:id] 
+            eaten_by = sessionid 
             type_of_food_list = db.execute("SELECT id FROM (type_of_food_restaurant_relation INNER JOIN type_of_food ON type_of_food_restaurant_relation.type_of_food_id = type_of_food.id) WHERE restaurant_id = ?",where_id )
             type_of_food_list = type_of_food_list.map { |item| item["id"]}
             if type_of_food_list.include?(type_of_food_id) 
                 db.execute("INSERT INTO dishes (name,type_of_food_id,where_id,eaten_by) VALUES (?,?,?,?)",name, type_of_food_id,where_id,eaten_by)
-                redirect('/')
+                return {status:true}
             else 
-                redirect('/error_restaurang_relation')
+                return {status:false}
             end 
         else 
-            redirect('/error_empty')
+            return {empty:true}
         end
     end 
     # Attempts to update dish information
     # @param [Hash] result , all information abaut the dish
     # @param [Integer] eaten by, the users ID
     # @see Model#connect_to_db
-    def dish_edit_post(id,name,where_id,type_of_food_id)
+    def dish_edit_post(id,name,where_id,type_of_food_id,sessionid)
         db = connect_to_db()
         result = db.execute("SELECT * FROM dishes WHERE id = ?",id).first
-        if session[:id] == result['eaten_by']
+        if sessionid == result['eaten_by']
             if not isEmpty(name)
-                eaten_by = session[:id] 
+                eaten_by = sessionid
                 type_of_food_list = db.execute("SELECT id FROM (type_of_food_restaurant_relation INNER JOIN type_of_food ON type_of_food_restaurant_relation.type_of_food_id = type_of_food.id) WHERE restaurant_id = ?",where_id )
                 type_of_food_list = type_of_food_list.map { |item| item["id"]}
                 if type_of_food_list.include?(type_of_food_id) 
                     db.execute("UPDATE dishes SET name=? WHERE id = ?",name,id)
                     db.execute("UPDATE dishes SET where_id=? WHERE id = ?",where_id,id)
                     db.execute("UPDATE dishes SET type_of_food_id=? WHERE id = ?",type_of_food_id,id)
-                    redirect('/')
+                    return {status:true, auth:true}
                 else 
-                    redirect('/error_restaurang_relation')
+                    return {status:false}
                 end
             else 
-                redirect('/error_empty')
+                return {empty:true}
             end 
-        elsif session[:id] == 1
+        elsif sessionid == 1
             if not isEmpty(name)
                 db.execute("UPDATE dishes SET name=? WHERE id = ?",name,id)
                 db.execute("UPDATE dishes SET where_id=? WHERE id = ?",where_id,id)
                 db.execute("UPDATE dishes SET type_of_food_id=? WHERE id = ?",type_of_food_id,id)
-                redirect('/')
+                return {status:true, auth:true}
             else 
-                redirect('/error_empty')
+                return {empty:true}
             end 
         else 
-            redirect('/error_authorization')  
+            return {auth:false}
         end 
     end
     # Attempts to update restaurant information
     # @see Model#connect_to_db
-    def restaurant_edit_post(id,name,where_id,link) 
+    def restaurant_edit_post(id,name,where_id,link, sessionid) 
         db = connect_to_db()
-        if session[:id] == 1
+        if sessionid == 1
             db.execute("UPDATE restaurant SET name=? WHERE id = ?",name,id)
             db.execute("UPDATE restaurant SET link=? WHERE id = ?",link,id)
+            return {status:true}
         else 
-            redirect('/error_authorization')  
+            return {status:false}
         end 
     end
     # Attempts to create a list of all restaurants
     # @see Model#connect_to_db
     def restaurants_get()
         db = connect_to_db()
-        restaurants = db.execute("SELECT * FROM restaurant")
-        slim(:"restaurants/index", locals:{restaurants:restaurants})
+        db.execute("SELECT * FROM restaurant")
     end 
     # Attempts to create a list eaten dishes by user
     # @see Model#connect_to_db
     def eaten_dishes_show_get(person)
         db = connect_to_db()
         result = db.execute("SELECT * FROM dishes WHERE eaten_by = ?",person)
-        p result
         return result
     end
     # Attempts show form to edit dish
     # @see Model#connect_to_db
-    def dish_edit_get(id)
+    def dish_edit_get(id,sessionid)
         db = connect_to_db()
         result = db.execute("SELECT * FROM dishes WHERE id = ?",id).first
-        if session[:id] == result['eaten_by']
-            slim(:"/dishes/edit",locals:{result:result})
-        elsif session[:id] == 1
-            slim(:"/dishes/edit",locals:{result:result})
+        if sessionid == result['eaten_by']
+            return {status:true, result:result}
+        elsif sessionid == 1
+            return {status:true, result:result}
         else 
-            redirect('/error_authorization')  
+            return {status:false}
         end 
     end
     # Attempts show form to edit restaurant
     # @see Model#connect_to_db
-    def restaurant_edit_get(id)
-        if session[:id] == 1
+    def restaurant_edit_get(id,sessionid)
+        if sessionid == 1
             db = connect_to_db()
             result = db.execute("SELECT * FROM restaurant WHERE id = ?",id).first
-            slim(:"/restaurants/edit",locals:{result:result})
+            return {status:true, result:result}
         else 
-            redirect('/error_authorization') 
+            return {status:false}
         end
     end
     # Attempts delete restaurant
     # @see Model#connect_to_db
-    def restaurant_delete_post(id)
-        if session[:id] == 1
+    def restaurant_delete_post(id,sessionid)
+        if sessionid == 1
             db = connect_to_db()
             db.execute("DELETE FROM restaurant WHERE id = ?",id)
             db.execute("DELETE FROM type_of_food_restaurant_relation WHERE restaurant_id = ?",id)
-            redirect('/restaurants')
+            return {status:true}
         else 
-            redirect('/error_authorization')  
+            return {status:false}
         end   
     end 
     # Attempts show list of all types of food at the selected restaurant
     # @see Model#connect_to_db
     def resturant_id_get(restaurant_data) 
-        session[:resturant_id]=params[:id]
         db = connect_to_db()
         restaurant = db.execute("SELECT * FROM restaurant WHERE id = ?",restaurant_data ).first
         type_of_food = db.execute("SELECT * FROM (type_of_food_restaurant_relation INNER JOIN type_of_food ON type_of_food_restaurant_relation.type_of_food_id = type_of_food.id) WHERE restaurant_id = ?",restaurant_data )
-        slim(:"restaurant/index", locals:{type_of_food:type_of_food,restaurant_id:restaurant_data,restaurant:restaurant})
+        return {restaurant:restaurant, type_of_food:type_of_food}
     end
     # Attempts show list all dishes ät the selected types of food at the selected restaurant
     # @see Model#connect_to_db
@@ -234,7 +226,6 @@ module Model
         db = connect_to_db()
         type_of_food_name = db.execute("SELECT * FROM type_of_food WHERE id = ?",type_of_food_data ).first
         dishes = db.execute("SELECT * FROM dishes WHERE where_id = ? AND type_of_food_id = ?", restaurant_data, type_of_food_data)
-        p dishes
-        slim(:"type_of_food/index", locals:{dishes:dishes,type_of_food_name:type_of_food_name})
+        return {type_of_food_name:type_of_food_name, dishes:dishes}
     end
 end 
